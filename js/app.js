@@ -20,6 +20,12 @@ Enemy.prototype.update = function(dt) {
     }
 }
 
+//Function is called to initialize enemies and when they leave
+//the game area so that new enemies can be spawned.
+Enemy.prototype.reset = function() {
+    
+}
+
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -39,7 +45,7 @@ var Player = function() {
 }
 
 //Method that handles keyboard controls.
-Player.prototype.handleInput = function() {
+Player.prototype.handleInput = function(key) {
 	
 }
 
