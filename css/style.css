@@ -1,3 +1,60 @@
 body {
     text-align: center;
+    color: blue;
+}
+
+h2 {
+    margin: 0px;
+}
+
+.main {
+    width: 520px;
+    height: 620px;
+    display: flex;
+    flex-direction: column;
+    justify-content: front;
+    margin: auto;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.charImg {
+    width: 75px;
+    padding: 10px;
+}
+
+.charImg:hover {
+    background-color: #AAAAFF;
+}
+
+.button{
+    color: green;
+    border-style: solid;
+    border-color: green;
+    border-width: 1px;
+    padding: 2px;
+    margin: 0px 5px; 
+}
+
+.button:hover {
+    color:white;
+    background-color:green;
+}
+
+.play {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.selected {
+    border-style: solid;
+    border-width: 2px;
+    border-color: blue;
 }

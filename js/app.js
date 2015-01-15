@@ -1,5 +1,5 @@
 // Enemies our player must avoid
-var Enemy = function(startx, starty, direction, speed) {
+var Enemy = function(startside, startrow, direction, speed) {
     this.x = startx;
     this.y = starty;
     this.speed = speed;
@@ -26,7 +26,7 @@ Enemy.prototype.reset = function() {
     
 }
 
-// Draw the enemy on the screen, required method for game
+// Draw the enemy on the screen.
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
@@ -37,22 +37,46 @@ Enemy.prototype.render = function() {
  * 
  */
 
+var intiEnemies = function() {
+    return [];
+}
+
 //Player object.
-var Player = function() {
+var Player = function(charSprite) {
 	this.xcor = 3;
 	this.ycor = 6;
 	this.moving = "still";
+	this.sprite = "images/" + charSprite + ".png";
+	//The 0 value below is a placeholder; the render function will
+	//determine the values based on the xcor and ycor values.
+	this.x = 0;
+	this.y = 0;
+}
+
+//Draw the player object on the screen.
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y)
+}
+
+Player.prototype.update = function() {
+    this.x = this.getXPos();
+    this.y = this.getYPos();
+}
+
+//Subsidiary functions to update that get the player's position
+//in pixels based on its coordinates on the grid.
+Player.prototype.getXPos = function() {
+    
+}
+
+Player.prototype.getYPos = function() {
+    
 }
 
 //Method that handles keyboard controls.
 Player.prototype.handleInput = function(key) {
 	
 }
-
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
-
 
 
 // This listens for key presses and sends the keys to
@@ -67,3 +91,27 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+var startGame = function() {
+    global var player = new Player(game.charSprite);
+    global var allEnemies = initEnemies(); 
+    Engine.init();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
