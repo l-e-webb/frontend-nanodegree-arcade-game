@@ -23,6 +23,7 @@ var startGame = function() {
     game.allEnemies = initEnemies();
     Engine(global);
     $(".main").remove();
+    game.running = true;
 }
 
 

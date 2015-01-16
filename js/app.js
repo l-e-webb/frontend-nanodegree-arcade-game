@@ -1,5 +1,6 @@
 var game = {};
 game.charSprite = "images/char-boy.png";
+game.running = false;
 
 //Class for enemies our player must avoid.
 var Enemy = function(startside, startrow, direction, speed) {
@@ -52,7 +53,7 @@ var Player = function(charSprite) {
     this.y = 0;
     this.xdisplace = 0;
     this.ydisplace = 0;
-    this.speed = 160;
+    this.speed = 800;
 }
 
 //Draw the player object on the screen.
@@ -85,16 +86,26 @@ Player.prototype.getYPos = function() {
 //appearing to engage in short range teleportation.
 Player.prototype.updateDisplacement = function(dt) {
     switch (this.moving) {
-        //Speed is increased by 25% in the vertical direction to
+        //Speed is increased by 25% in the horizontal direction to
         //ensure that the player moves up and down rows as fast
         //as they move side to side along columns.
         case "still": break;
-        case "left": this.xdisplace -= this.speed*dt;
-        case "right": this.xdisplace += this.speed*dt;
-        case "up": this.ydisplace -= this.speed*dt*1.25;
-        case "down": this.ydisplace += this.speed*dt*1.25;
+        case "left": this.xdisplace -= this.speed*dt*1.25; break;
+        case "right": this.xdisplace += this.speed*dt*1.25; break;
+        case "up": this.ydisplace -= this.speed*dt; break;
+        case "down": this.ydisplace += this.speed*dt; break;
+        default: console.log("default"); break;
     }
-    if (Math.abd(this.xdisplace) >= 81 || Math.abs(this.ydisplace) >= 101) {
+    //If the player has finished moving a tile's distance, it's coordinates are
+    //updated and the moving and displace variables are reset.
+    if (Math.abs(this.xdisplace) >= 101 || Math.abs(this.ydisplace) >= 81) {
+        switch (this.moving) {
+            case "left": this.xcor -= 1; break;
+            case "right": this.xcor += 1; break;
+            case "up": this.ycor -= 1; break;
+            case "down": this.ycor += 1; break;
+            default: break;
+        }
         this.moving = "still";
         this.xdisplace = 0;
         this.ydisplace = 0;
@@ -118,14 +129,15 @@ Player.prototype.handleInput = function(key) {
 // This listens for key presses and sends the keys to
 // Player.handleInput() method.
 document.addEventListener('keyup', function(e) {
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down'
-    };
-
-    player.handleInput(allowedKeys[e.keyCode]);
+    if (game.running) {
+        var allowedKeys = {
+            37: 'left',
+            38: 'up',
+            39: 'right',
+            40: 'down'
+        };
+        game.player.handleInput(allowedKeys[e.keyCode]);
+    }
 });
 
 
