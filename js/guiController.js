@@ -1,6 +1,5 @@
+var global = global||this;
 var gui = {};
-var game = {};
-game.charSprite = "images/char-boy.png";
 game.difficulty = "normal";
 
 gui.selectChar = function () {
@@ -19,6 +18,14 @@ gui.selectDifficulty = function () {
     }
 }
 
+var startGame = function() {    
+    game.player = new Player(game.charSprite);
+    game.allEnemies = initEnemies();
+    Engine(global);
+    $(".main").remove();
+}
+
+
 $(".charImg").click(gui.selectChar);
 $(".button").click(gui.selectDifficulty);
-$("#play").click(startGame);
+$(".play-button").click(startGame);
