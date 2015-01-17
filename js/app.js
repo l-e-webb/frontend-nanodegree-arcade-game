@@ -3,7 +3,7 @@ game.charSprite = "images/char-boy.png";
 game.running = false;
 game.numEnemieseasy = 4;
 game.numEnemiesnormal = 5;
-game.numEnemieshard = 6;
+game.numEnemieshard = 5;
 game.toleranceeasy = 40;
 game.tolerancenormal = 50;
 game.tolerancehard = 60;
@@ -148,26 +148,64 @@ Wanderer.prototype.furtherUpdate = function(dt) {
 //Creates a new enemy with random properties dependent on
 //difficulty.
 game.getNewEnemy = function (index) {
-    var speed = 0;
-    switch (game.difficulty) {
-        case "easy": 
-            speed = Math.floor(50 + 100*Math.random());
-            break;
-        case "normal":
-            speed = Math.floor(100 + 125*Math.random());
-            break;
-        case "hard":
-            speed = Math.floor(125 + 200*Math.random());
-            break;
-        default:
-            speed = 100;
-            break;
-    }
+    var enemy;
     var side = "";
     if (Math.random()>0.5) {side = "left"}
     else {side = "right"}
     var row = Math.floor(2 + 3*Math.random());
-    var enemy = new Enemy(side, row, speed, index, 4*Math.random());
+    var wait = 2*Math.random();
+    var type = Math.random();
+    switch (game.difficulty) {
+        case "easy":
+            if (type <= 0.5) {
+                speed = Math.floor(50 + 100*Math.random());
+                enemy = new Enemy(side, row, speed, index, wait);
+            } else if (type > 0.5 && type <= 0.66) {
+                speed = Math.floor(50 + 50*Math.random());
+                enemy = new Wanderer(side, row, speed, index, wait, 1 + 2*Math.random(), 12);
+            } else if (type > 0.66 && type <= 0.83) {
+                speed = Math.floor(75 + 100*Math.random());
+                enemy = new StopAndGo(side, row, speed, index, wait, 3, 1);
+            } else if (type > 0.83) {
+                speed = Math.floor(50 + 25*Math.random());
+                enemy = new Chaser(side, row, speed, index, wait);
+            }
+            break;
+        case "normal":
+            if (type <= 0.4) {
+                speed = Math.floor(75 + 100*Math.random());
+                enemy = new Enemy(side, row, speed, index, wait);
+            } else if (type > 0.4 && type <= 0.6) {
+                speed = Math.floor(75 + 75*Math.random());
+                enemy = new Wanderer(side, row, speed, index, wait, 1 + 2*Math.random(), 14);
+            } else if (type > 0.6 && type <= 0.8) {
+                speed = Math.floor(100 + 100*Math.random());
+                enemy = new StopAndGo(side, row, speed, index, wait, 1 + 2*Math.random(), 0.5 + 0.5*Math.random());
+            } else if (type > 0.8) {
+                speed = Math.floor(75 + 75*Math.random());
+                enemy = new Chaser(side, row, speed, index, wait);
+            }
+            break;
+        case "hard":
+            if (type <= 0.3) {
+                speed = Math.floor(100 + 125*Math.random());
+                enemy = new Enemy(side, row, speed, index, wait);
+            } else if (type > 0.3 && type <= 0.5) {
+                speed = Math.floor(100 + 75*Math.random());
+                enemy = new Wanderer(side, row, speed, index, wait, 1 + 2*Math.random(), 15);
+            } else if (type > 0.5 && type <= 0.7) {
+                speed = Math.floor(150 + 50*Math.random());
+                enemy = new StopAndGo(side, row, speed, index, wait, 1 + 2*Math.random(), 0.5 + 0.5*Math.random());
+            } else if (type > 0.7) {
+                speed = Math.floor(100 + 100*Math.random());
+                enemy = new Chaser(side, row, speed, index, wait);
+            }
+            break;
+        default:
+            speed = Math.floor(100 + 125*Math.random());
+            enemy = new Enemy(side, row, speed, index, wait);
+            break;
+    }
     return enemy;
 }
 
@@ -175,17 +213,12 @@ game.getNewEnemy = function (index) {
 //to an enemy.
 game.initEnemies = function() {
     game.tolerance = game["tolerance"+game.difficulty];
-    /*
     var enemies = [];
     var numEnemies = game["numEnemies"+game.difficulty];
     for (var i = 0; i<numEnemies; i++) {
         enemies.push(game.getNewEnemy(i));
     }
-    return enemies; */
-   var enemies = [];
-   var wander = new Wanderer("left", 4, 100, 0, 0, 2, 20);
-   enemies.push(wander);
-   return enemies;
+    return enemies;
 }
 
 //Used to spawn a new enemy once an old enemy has run off
