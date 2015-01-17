@@ -397,6 +397,7 @@ Player.prototype.die = function() {
     this.moving = "still";
     this.xdisplace = 0;
     this.ydisplace = 0;
+    game.score -= 500;
 }
 
 //Method that handles keyboard controls.  If the player
