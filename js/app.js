@@ -3,30 +3,30 @@ game.charSprite = "images/char-boy.png";
 game.running = false;
 
 //Class for enemies our player must avoid.
-var Enemy = function(startside, startrow, direction, speed) {
-    //Initialize pos
+var Enemy = function(startside, startrow, speed, index) {
+    if (startside == "left") {this.x = -101; this.direction="right";}
+    else if (startside == "right") {this.x = 606; this.direction="left";}
+    this.y = (startrow-2)*81
     this.speed = speed;
-    this.direction = direction;
-    this.sprite = 'images/enemy-bug.png';
+    this.sprite = 'images/enemy-bug-'+this.direction+'.png';
+    this.index = index;
 }
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
     if (this.direction == "left") {
+        this.sprite = 'images/enemy-bug-left.png';
         this.x = this.x - dt*this.speed;
     } else if (this.direction == "right") {
+        this.sprite = 'images/enemy-bug-right.png';
         this.x = this.x + dt*this.speed;
     }
-    if (this.x <= -101 || this.x >= 606) {
-        this.reset();
+    //If enemy has left the screen, it is removed from
+    //the allEnemies array and a new one is added.
+    if (this.x < -101 || this.x > 606) {
+        game.replaceEnemy(this.index);
     }
-}
-
-//Function is called to initialize enemies and when they leave
-//the game area so that new enemies can be spawned.
-Enemy.prototype.reset = function() {
-    
 }
 
 // Draw the enemy on the screen.
@@ -34,10 +34,25 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
-var initEnemies = function() {
-    return [];
+game.getNewEnemy = function (index) {
+    var enemy = new Enemy("left", 2, 200, index);
+    return enemy;
 }
 
+game.initEnemies = function() {
+    var enemies = [];
+    var numEnemies = 1;
+    //if (game.difficulty == "easy") {numEnemies = 4}
+    //else {numEnemies = 5}
+    for (var i = 0; i<numEnemies; i++) {
+        enemies.push(game.getNewEnemy(i));
+    }
+    return enemies;
+}
+
+game.replaceEnemy = function(index) {
+    game.allEnemies[index] = game.getNewEnemy(index);
+}
 
 
 

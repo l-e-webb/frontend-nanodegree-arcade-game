@@ -20,7 +20,7 @@ gui.selectDifficulty = function () {
 
 var startGame = function() {    
     game.player = new Player(game.charSprite);
-    game.allEnemies = initEnemies();
+    game.allEnemies = game.initEnemies();
     Engine(global);
     $(".main").remove();
     game.running = true;
