@@ -249,6 +249,8 @@ var Gem = function(xcor, ycor, type, spawnTime, index) {
     var x = (xcor-1)*101;
     var y = (ycor-2)*83;
     GameObject.call(this, x, y, 'images/empty.png');
+    this.xcor = xcor;
+    this.ycor = ycor;
     this.type = type;
     this.index = index;
     this.spawnTime = spawnTime;
@@ -274,7 +276,7 @@ Gem.prototype.update = function(dt) {
             game.replaceGem(this.index);
         } else {
             this.sprite = this.realSprite;
-            this.detectCollision;
+            this.detectCollision();
         }
     }
 }
@@ -315,7 +317,7 @@ game.getNewGem = function(index) {
     } else {var type = "green";}
     var ycor = Math.floor(2 + 3*Math.random());
     var xcor = Math.floor(1 + 5*Math.random());
-    var spawnTime = 10 + 15*Math.random();
+    var spawnTime =  15*Math.random();
     var gem = new Gem(xcor, ycor, type, spawnTime, index);
     return gem;
 }
