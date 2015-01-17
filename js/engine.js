@@ -94,6 +94,9 @@ var Engine = function(global) {
         game.allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
+        game.allGems.forEach(function(gem) {
+            gem.update(dt);
+        });
         game.player.update(dt);
     }
 
@@ -151,7 +154,11 @@ var Engine = function(global) {
         game.allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
+        
+        game.allGems.forEach(function(gem) {
+            gem.render();
+        });
+        
         game.player.render();
     }
 
@@ -177,7 +184,11 @@ var Engine = function(global) {
         'images/char-cat-girl.png',
         'images/char-horn-girl.png',
         'images/char-pink-girl.png',
-        'images/char-princess-girl.png'
+        'images/char-princess-girl.png',
+        'images/gem-green.png',
+        'images/gem-blue.png',
+        'images/gem-orange.png',
+        'images/empty.png'
     ]);
     
     //init now called from the startGame function in app.js.

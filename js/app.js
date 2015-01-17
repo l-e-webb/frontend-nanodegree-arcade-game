@@ -8,6 +8,8 @@ game.toleranceeasy = 40;
 game.tolerancenormal = 50;
 game.tolerancehard = 60;
 game.tolerance = 0;
+game.numGems = 3;
+game.score = 0;
 
 
 //GameObject class is a master class for enemies, players,
@@ -240,10 +242,86 @@ game.replaceEnemy = function(index) {
 }
 
 
+
 //Gem class for objects that appear on the screen that players can
 //grab for points.
-var Gem = function() {
-    
+var Gem = function(xcor, ycor, type, spawnTime, index) {
+    var x = (xcor-1)*101;
+    var y = (ycor-2)*83;
+    GameObject.call(this, x, y, 'images/empty.png');
+    this.type = type;
+    this.index = index;
+    this.spawnTime = spawnTime;
+    if (type == "green") {
+        this.existTime = 6;
+    } else if (type == "blue") {
+        this.existTime = 5;
+    } else if (type == "orange") {
+        this.existTime = 4;
+    }
+    this.realSprite = 'images/gem-' + type + '.png';
+}
+Gem.prototype = Object.create(GameObject.prototype);
+Gem.prototype.constructor = Gem;
+
+
+Gem.prototype.update = function(dt) {
+    if (this.spawnTime > 0) {
+        this.spawnTime -= dt;
+    } else {
+        this.existTime -= dt;
+        if (this.existTime <= 0) {
+            game.replaceGem(this.index);
+        } else {
+            this.sprite = this.realSprite;
+            this.detectCollision;
+        }
+    }
+}
+
+Gem.prototype.detectCollision = function() {
+    if (this.ycor == game.player.ycor && this.xcor == game.player.xcor) {
+        this.getScored();
+    }
+}
+
+Gem.prototype.getScored = function() {
+    if (this.type == "green") {
+        game.score += 200;
+    } else if (this.type == "blue") {
+        game.score += 500;
+    } else if (this.type == "orange") {
+        game.score += 1000;
+    }
+    game.replaceGem(this.index);
+}
+
+game.initGems = function() {
+    var gems = [];
+    for (var i = 0; i < game.numGems; i++) {
+        gems.push(game.getNewGem(i));
+    }
+    return gems;
+}
+
+game.getNewGem = function(index) {
+    var typeGen = Math.random();
+    if (typeGen <= 0.5) {
+        var type = "green";
+    } else if (typeGen > 0.5 && typeGen <= 0.83) {
+        var type = "blue";
+    } else if (typeGen > 0.83) {
+        var type = "orange";
+    } else {var type = "green";}
+    var ycor = Math.floor(2 + 3*Math.random());
+    var xcor = Math.floor(1 + 5*Math.random());
+    var spawnTime = 10 + 15*Math.random();
+    var gem = new Gem(xcor, ycor, type, spawnTime, index);
+    return gem;
+}
+
+game.replaceGem = function(index) {
+    game.allGems[index] = game.getNewGem(index);
 }
 
 
