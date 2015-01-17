@@ -32,13 +32,22 @@ Enemy.prototype.update = function(dt) {
             this.sprite = 'images/enemy-bug-right.png';
             this.x = this.x + dt*this.speed;
         }
+        //Checks to see if it has killed the player.
         this.checkCollision();
+        //This function is blank for regular enemies, but has
+        //a value for specific enemy classes who require...
+        //well... further updates.
+        this.furtherUpdate(dt);
         //If enemy has left the screen, it is removed from
         //the allEnemies array and a new one is added.
         if (this.x < -101 || this.x > 606) {
             game.replaceEnemy(this.index);
         }
     } else {this.wait -= dt;}
+}
+
+Enemy.prototype.furtherUpdate = function() {
+    //Only has functionality for other classes.
 }
 
 // Draw the enemy on the screen.
@@ -54,6 +63,28 @@ Enemy.prototype.checkCollision = function() {
         if (Math.abs(this.x - game.player.x) <= game.tolerance) {
             game.player.die();
         }
+    }
+}
+
+//Other enemy classes o'clock!
+
+//This enemy type stops and goes.  It is assigned a "goTime" and "waitTime"
+//at creation that determine how long it will go for before waiting, wait
+//before going.
+var StopAndGo = function(startside, startrow, speed, index, wait, goTime, waitTime) {
+    Enemy.call(this, startside, startrow, speed, index, wait);
+    this.goTime = goTime;
+    this.waitTime = waitTime;
+    this.go = this.goTime;
+}
+
+StopAndGo.prototype = Object.create(Enemy.prototype);
+StopAndGo.prototype.constructor = StopAndGo;
+StopAndGo.prototype.furtherUpdate = function(dt) {
+    this.go -= dt;
+    if (this.go <= 0) {
+        this.go = this.goTime;
+        this.wait = this.waitTime;
     }
 }
 
@@ -87,12 +118,17 @@ game.getNewEnemy = function (index) {
 //to an enemy.
 game.initEnemies = function() {
     game.tolerance = game["tolerance"+game.difficulty];
+    /*
     var enemies = [];
     var numEnemies = game["numEnemies"+game.difficulty];
     for (var i = 0; i<numEnemies; i++) {
         enemies.push(game.getNewEnemy(i));
     }
-    return enemies;
+    return enemies; */
+   var enemies = [];
+   var sandg = new StopAndGo("left", 2, 100, 0, 0, 2, 1);
+   enemies.push(sandg);
+   return enemies;
 }
 
 //Used to spawn a new enemy once an old enemy has run off
