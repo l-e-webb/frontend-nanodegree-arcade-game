@@ -114,6 +114,36 @@ Chaser.prototype.furtherUpdate = function(dt) {
     }
 }
 
+//This enemy type turns around and goes in the other direction
+//periodically.  After maxTime seconds it will stop wandering to
+//ensure that it eventually leaves play.
+var Wanderer = function(startside, startrow, speed, index, wait, turnTime, maxTime) {
+    Enemy.call(this, startside, startrow, speed, index, wait);
+    this.turnTime = turnTime;
+    this.turn = turnTime*2;
+    this.totalTime = 0;
+    this.maxTime = maxTime;
+}
+Wanderer.prototype = Object.create(Enemy.prototype);
+Wanderer.prototype.constructor = Wanderer;
+Wanderer.prototype.furtherUpdate = function(dt) {
+    this.turn -= dt;
+    this.totalTime += dt;
+    if (this.totalTime >= this.maxTime) {
+        //If the enemy has been in play for maxTime seconds
+        //the turn variable is set to 50 seconds, long enough
+        //for it to leave play even if it is a slow enemy.
+        this.turn = 50;
+    }
+    if (this.turn <= 0) {
+        if (this.direction == "right") {
+            this.direction = "left";
+        } else {
+            this.direction = "right";
+        }
+        this.turn = 0.5*this.turnTime + this.turnTime*Math.random();
+    }
+}
 
 //Creates a new enemy with random properties dependent on
 //difficulty.
@@ -153,8 +183,8 @@ game.initEnemies = function() {
     }
     return enemies; */
    var enemies = [];
-   var chase = new Chaser("left", 4, 100, 0, 0);
-   enemies.push(chase);
+   var wander = new Wanderer("left", 4, 100, 0, 0, 2, 20);
+   enemies.push(wander);
    return enemies;
 }
 
