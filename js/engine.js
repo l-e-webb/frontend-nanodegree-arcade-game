@@ -28,6 +28,7 @@ var Engine = function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+    ctx.font = "50px Arial";
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -141,6 +142,8 @@ var Engine = function(global) {
 
 
         renderEntities();
+        
+        renderScore();
     }
 
     /* This function is called by the render function and is called on each game
@@ -161,7 +164,15 @@ var Engine = function(global) {
         
         game.player.render();
     }
-
+    
+    //Draws the current score at the top of the screen.
+    function renderScore() {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(15,0,400,75);
+        ctx.fillStyle = "#000000";
+        ctx.fillText("Score: " + game.score, 15, 60);
+    }
+    
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
