@@ -1,6 +1,9 @@
 var game = {};
 game.charSprite = "images/char-boy.png";
 game.running = false;
+game.numEnemieseasy = 3;
+game.numEnemiesnormal = 4;
+game.numEnemieshard = 4;
 
 //Class for enemies our player must avoid.
 var Enemy = function(startside, startrow, speed, index) {
@@ -34,22 +37,44 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
+//Creates a new enemy with random properties dependent on
+//difficulty.
 game.getNewEnemy = function (index) {
-    var enemy = new Enemy("left", 2, 200, index);
+    var speed = 0;
+    switch (game.difficulty) {
+        case "easy": 
+            speed = Math.floor(50 + 100*Math.random());
+            break;
+        case "normal":
+            speed = Math.floor(100 + 125*Math.random());
+            break;
+        case "hard":
+            speed = Math.floor(125 + 200*Math.random());
+            break;
+        default:
+            speed = 100;
+            break;
+    }
+    var side = "";
+    if (Math.random()>0.5) {side = "left"}
+    else {side = "right"}
+    var row = Math.floor(2 + 3*Math.random());
+    var enemy = new Enemy(side, row, speed, index);
     return enemy;
 }
 
+//Initializes the array of enemies.
 game.initEnemies = function() {
     var enemies = [];
-    var numEnemies = 1;
-    //if (game.difficulty == "easy") {numEnemies = 4}
-    //else {numEnemies = 5}
+    var numEnemies = game["numEnemies"+game.difficulty];
     for (var i = 0; i<numEnemies; i++) {
         enemies.push(game.getNewEnemy(i));
     }
     return enemies;
 }
 
+//Used to spawn a new enemy once an old enemy has run off
+//the screen.
 game.replaceEnemy = function(index) {
     game.allEnemies[index] = game.getNewEnemy(index);
 }
