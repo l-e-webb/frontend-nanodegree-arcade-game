@@ -29,7 +29,7 @@ GameObject.prototype.render = function() {
 var Enemy = function(startside, startrow, speed, index, wait) {
     if (startside == "left") {var x = -101; var direction="right";}
     else if (startside == "right") {var x = 606; var direction="left";}
-    var y = (startrow-2)*81;
+    var y = (startrow-1)*81;
     GameObject.call(this, x, y, 'images/enemy-bug-'+direction+'.png');
     this.row = startrow;
     this.direction = direction;
@@ -247,7 +247,7 @@ game.replaceEnemy = function(index) {
 //grab for points.
 var Gem = function(xcor, ycor, type, spawnTime, index) {
     var x = (xcor-1)*101;
-    var y = (ycor-2)*83;
+    var y = (ycor-1)*83;
     GameObject.call(this, x, y, 'images/empty.png');
     this.xcor = xcor;
     this.ycor = ycor;
@@ -357,7 +357,7 @@ Player.prototype.getXPos = function() {
 }
 
 Player.prototype.getYPos = function() {
-    this.y = (this.ycor-2)*83 + this.ydisplace;
+    this.y = (this.ycor-1)*81 + this.ydisplace;
 }
 
 //This function updates the displacement of the player's sprite
