@@ -9,17 +9,34 @@ game.tolerancenormal = 50;
 game.tolerancehard = 60;
 game.tolerance = 0;
 
+
+//GameObject class is a master class for enemies, players,
+//and gems.
+var GameObject = function(x,y,sprite) {
+    this.x = x;
+    this.y = y;
+    this.sprite = sprite;
+}
+
+GameObject.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+
 //Class for enemies our player must avoid.
 var Enemy = function(startside, startrow, speed, index, wait) {
-    if (startside == "left") {this.x = -101; this.direction="right";}
-    else if (startside == "right") {this.x = 606; this.direction="left";}
+    if (startside == "left") {var x = -101; var direction="right";}
+    else if (startside == "right") {var x = 606; var direction="left";}
+    var y = (startrow-2)*81;
+    GameObject.call(this, x, y, 'images/enemy-bug-'+direction+'.png');
     this.row = startrow;
-    this.y = (startrow-2)*81
+    this.direction = direction;
     this.speed = speed;
-    this.sprite = 'images/enemy-bug-'+this.direction+'.png';
     this.index = index;
     this.wait = wait;
 }
+Enemy.prototype = Object.create(GameObject.prototype);
+Enemy.prototype.constructor = Enemy;
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -48,11 +65,6 @@ Enemy.prototype.update = function(dt) {
 
 Enemy.prototype.furtherUpdate = function() {
     //Only has functionality for other classes.
-}
-
-// Draw the enemy on the screen.
-Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 //Collision detector checks if the enemy is in the same row as the player,
@@ -228,26 +240,25 @@ game.replaceEnemy = function(index) {
 }
 
 
+//Gem class for objects that appear on the screen that players can
+//grab for points.
+var Gem = function() {
+    
+}
+
 
 //Player class.
 var Player = function(charSprite) {
+    GameObject.call(this, 0, 0, charSprite);
     this.xcor = 3;
     this.ycor = 6;
     this.moving = "still";
-    this.sprite = charSprite;
-    //The 0 value below is a placeholder; the render function will
-    //determine the values based on the xcor and ycor values.
-    this.x = 0;
-    this.y = 0;
     this.xdisplace = 0;
     this.ydisplace = 0;
     this.speed = 800;
 }
-
-//Draw the player object on the screen.
-Player.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y)
-}
+Player.prototype = Object.create(GameObject.prototype);
+Player.prototype.constructor = Player;
 
 //Update function to track player motion.  Farms out its duty
 //to several functions below.
