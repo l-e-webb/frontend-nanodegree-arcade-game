@@ -1,35 +1,38 @@
 var game = {};
 game.charSprite = "images/char-boy.png";
 game.running = false;
-game.numEnemieseasy = 3;
-game.numEnemiesnormal = 4;
-game.numEnemieshard = 4;
+game.numEnemieseasy = 4;
+game.numEnemiesnormal = 5;
+game.numEnemieshard = 6;
 
 //Class for enemies our player must avoid.
-var Enemy = function(startside, startrow, speed, index) {
+var Enemy = function(startside, startrow, speed, index, wait) {
     if (startside == "left") {this.x = -101; this.direction="right";}
     else if (startside == "right") {this.x = 606; this.direction="left";}
     this.y = (startrow-2)*81
     this.speed = speed;
     this.sprite = 'images/enemy-bug-'+this.direction+'.png';
     this.index = index;
+    this.wait = wait;
 }
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    if (this.direction == "left") {
-        this.sprite = 'images/enemy-bug-left.png';
-        this.x = this.x - dt*this.speed;
-    } else if (this.direction == "right") {
-        this.sprite = 'images/enemy-bug-right.png';
-        this.x = this.x + dt*this.speed;
-    }
-    //If enemy has left the screen, it is removed from
-    //the allEnemies array and a new one is added.
-    if (this.x < -101 || this.x > 606) {
-        game.replaceEnemy(this.index);
-    }
+    if (this.wait <= 0) {
+        if (this.direction == "left") {
+            this.sprite = 'images/enemy-bug-left.png';
+            this.x = this.x - dt*this.speed;
+        } else if (this.direction == "right") {
+            this.sprite = 'images/enemy-bug-right.png';
+            this.x = this.x + dt*this.speed;
+        }
+        //If enemy has left the screen, it is removed from
+        //the allEnemies array and a new one is added.
+        if (this.x < -101 || this.x > 606) {
+            game.replaceEnemy(this.index);
+        }
+    } else {this.wait -= dt;}
 }
 
 // Draw the enemy on the screen.
@@ -59,7 +62,7 @@ game.getNewEnemy = function (index) {
     if (Math.random()>0.5) {side = "left"}
     else {side = "right"}
     var row = Math.floor(2 + 3*Math.random());
-    var enemy = new Enemy(side, row, speed, index);
+    var enemy = new Enemy(side, row, speed, index, 4*Math.random());
     return enemy;
 }
 
