@@ -88,6 +88,33 @@ StopAndGo.prototype.furtherUpdate = function(dt) {
     }
 }
 
+//This enemy type turns towards the player and speeds up if the player
+//is on the same row.
+var Chaser = function(startside, startrow, speed, index, wait) {
+    Enemy.call(this, startside, startrow, speed, index, wait);
+    this.baseSpeed = speed;
+    this.chasing = false;
+}
+Chaser.prototype = Object.create(Enemy.prototype);
+Chaser.prototype.constructor = Chaser;
+Chaser.prototype.furtherUpdate = function(dt) {
+    if (this.row == game.player.ycor) {
+        if (this.chasing == false) {
+            if (this.x < game.player.x) {
+                this.direction = "right";
+            } else {
+                this.direction = "left";
+            }
+            this.speed = this.baseSpeed*2;
+            this.chasing = true;
+        }
+    } else {
+        this.speed = this.baseSpeed;
+        this.chasing = false;
+    }
+}
+
+
 //Creates a new enemy with random properties dependent on
 //difficulty.
 game.getNewEnemy = function (index) {
@@ -126,8 +153,8 @@ game.initEnemies = function() {
     }
     return enemies; */
    var enemies = [];
-   var sandg = new StopAndGo("left", 2, 100, 0, 0, 2, 1);
-   enemies.push(sandg);
+   var chase = new Chaser("left", 4, 100, 0, 0);
+   enemies.push(chase);
    return enemies;
 }
 
