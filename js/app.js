@@ -4,11 +4,16 @@ game.running = false;
 game.numEnemieseasy = 4;
 game.numEnemiesnormal = 5;
 game.numEnemieshard = 6;
+game.toleranceeasy = 40;
+game.tolerancenormal = 50;
+game.tolerancehard = 60;
+game.tolerance = 0;
 
 //Class for enemies our player must avoid.
 var Enemy = function(startside, startrow, speed, index, wait) {
     if (startside == "left") {this.x = -101; this.direction="right";}
     else if (startside == "right") {this.x = 606; this.direction="left";}
+    this.row = startrow;
     this.y = (startrow-2)*81
     this.speed = speed;
     this.sprite = 'images/enemy-bug-'+this.direction+'.png';
@@ -27,6 +32,7 @@ Enemy.prototype.update = function(dt) {
             this.sprite = 'images/enemy-bug-right.png';
             this.x = this.x + dt*this.speed;
         }
+        this.checkCollision();
         //If enemy has left the screen, it is removed from
         //the allEnemies array and a new one is added.
         if (this.x < -101 || this.x > 606) {
@@ -38,6 +44,17 @@ Enemy.prototype.update = function(dt) {
 // Draw the enemy on the screen.
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+//Collision detector checks if the enemy is in the same row as the player,
+//then checks if they are within the "tolerance."  Tolerance is in the range
+//of 50px and depends on difficulty.
+Enemy.prototype.checkCollision = function() {
+    if (this.row == game.player.ycor) {
+        if (Math.abs(this.x - game.player.x) <= game.tolerance) {
+            game.player.die();
+        }
+    }
 }
 
 //Creates a new enemy with random properties dependent on
@@ -66,8 +83,10 @@ game.getNewEnemy = function (index) {
     return enemy;
 }
 
-//Initializes the array of enemies.
+//Initializes the array of enemies.  Also sets tolerance for proximity
+//to an enemy.
 game.initEnemies = function() {
+    game.tolerance = game["tolerance"+game.difficulty];
     var enemies = [];
     var numEnemies = game["numEnemies"+game.difficulty];
     for (var i = 0; i<numEnemies; i++) {
@@ -153,6 +172,14 @@ Player.prototype.updateDisplacement = function(dt) {
         this.xdisplace = 0;
         this.ydisplace = 0;
     }
+}
+
+Player.prototype.die = function() {
+    this.xcor = 3;
+    this.ycor = 6;
+    this.moving = "still";
+    this.xdisplace = 0;
+    this.ydisplace = 0;
 }
 
 //Method that handles keyboard controls.  If the player
