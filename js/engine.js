@@ -28,7 +28,7 @@ var Engine = function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
-    ctx.font = "50px Arial";
+    ctx.font = "30px Arial";
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -144,6 +144,8 @@ var Engine = function(global) {
         renderEntities();
         
         renderScore();
+        
+        renderLives();
     }
 
     /* This function is called by the render function and is called on each game
@@ -168,9 +170,16 @@ var Engine = function(global) {
     //Draws the current score at the top of the screen.
     function renderScore() {
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(15,0,400,75);
+        ctx.fillRect(0,0,505,75);
         ctx.fillStyle = "#000000";
         ctx.fillText("Score: " + game.score, 15, 60);
+    }
+    
+    //Displays the player's remaining lives as heart icons.
+    function renderLives() {
+        for (var i = 0; i < game.player.lives; i++) {
+            ctx.drawImage(Resources.get('images/heart.png'), 480-(i+1)*50, -75);
+        }
     }
     
     /* This function does nothing but it could have been a good place to
@@ -199,6 +208,7 @@ var Engine = function(global) {
         'images/gem-green.png',
         'images/gem-blue.png',
         'images/gem-orange.png',
+        'images/heart.png',
         'images/empty.png'
     ]);
     

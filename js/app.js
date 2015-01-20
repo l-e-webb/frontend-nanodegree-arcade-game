@@ -336,6 +336,7 @@ var Player = function(charSprite) {
     this.xdisplace = 0;
     this.ydisplace = 0;
     this.speed = 800;
+    this.lives = 5;
 }
 Player.prototype = Object.create(GameObject.prototype);
 Player.prototype.constructor = Player;
