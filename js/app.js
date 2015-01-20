@@ -256,12 +256,16 @@ var Gem = function(xcor, ycor, type, spawnTime, index) {
     this.spawnTime = spawnTime;
     if (type == "green") {
         this.existTime = 6;
-    } else if (type == "blue") {
+    } else if (type == "blue" || type == "heart") {
         this.existTime = 5;
     } else if (type == "orange") {
         this.existTime = 4;
     }
-    this.realSprite = 'images/gem-' + type + '.png';
+    if (this.type == "heart") {
+        this.realSprite = 'images/heart.png'
+    } else {
+        this.realSprite = 'images/gem-' + type + '.png';
+    }
 }
 Gem.prototype = Object.create(GameObject.prototype);
 Gem.prototype.constructor = Gem;
@@ -294,6 +298,8 @@ Gem.prototype.getScored = function() {
         game.score += 500;
     } else if (this.type == "orange") {
         game.score += 1000;
+    } else if (this.type == "heart") {
+        game.player.lives++;
     }
     game.replaceGem(this.index);
 }
@@ -308,16 +314,18 @@ game.initGems = function() {
 
 game.getNewGem = function(index) {
     var typeGen = Math.random();
-    if (typeGen <= 0.5) {
+    if (typeGen <= 0.375) {
         var type = "green";
-    } else if (typeGen > 0.5 && typeGen <= 0.83) {
+    } else if (typeGen > 0.375 && typeGen <= 0.625) {
         var type = "blue";
-    } else if (typeGen > 0.83) {
+    } else if (typeGen > 0.625 && typeGen <= 0.875) {
+        var type = "heart";
+    } else if (typeGen > 0.875) {
         var type = "orange";
     } else {var type = "green";}
     var ycor = Math.floor(2 + 3*Math.random());
     var xcor = Math.floor(1 + 5*Math.random());
-    var spawnTime =  15*Math.random();
+    var spawnTime =  10*Math.random();
     var gem = new Gem(xcor, ycor, type, spawnTime, index);
     return gem;
 }
@@ -398,6 +406,7 @@ Player.prototype.die = function() {
     this.moving = "still";
     this.xdisplace = 0;
     this.ydisplace = 0;
+    this.lives--;
     game.score -= 500;
 }
 
