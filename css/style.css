@@ -9,7 +9,7 @@ h2 {
 
 .main {
     width: 520px;
-    height: 620px;
+    height: auto;
     display: flex;
     flex-direction: column;
     justify-content: front;
