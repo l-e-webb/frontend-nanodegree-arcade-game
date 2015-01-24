@@ -178,7 +178,7 @@ var Engine = function(global) {
     //Displays the player's remaining lives as heart icons.
     function renderLives() {
         for (var i = 0; i < game.player.lives; i++) {
-            ctx.drawImage(Resources.get('images/heart.png'), 480-(i+1)*50, -75);
+            ctx.drawImage(Resources.get('images/heart.png'), 493 -(i+1)*25, -10, 50, 85);
         }
     }
     
