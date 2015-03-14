@@ -1,6 +1,8 @@
 frontend-nanodegree-arcade-game
 ===============================
 
-Students should use this rubric: https://www.udacity.com/course/viewer#!/c-ud015/l-3072058665/m-3072588797
+To play: Ensure that index.html and the three folders css, images, and js
+are all in a folder together, and simply open index.html in any browser
+to play.  Alternatively, you can play the game online at:
 
-for self-checking their submission.
+l-e-webb.github.io/frontent-nanodegree-arcade-game

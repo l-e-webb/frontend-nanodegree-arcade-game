@@ -5,27 +5,29 @@
  * to avoid cluttering the global scope.
  */
 
-var game = {};
-game.charSprite = "images/char-boy.png";
-/* numEnemies variables define the maximum number of enemies that may
- * be on the screen, based on the difficulty.
- */
-game.numEnemieseasy = 4;
-game.numEnemiesnormal = 5;
-game.numEnemieshard = 5;
-/* The tolerance variables determine how close the player may get to
- * an enemy without before dying.  Also dependent on difficulty.
- */
-game.toleranceeasy = 40;
-game.tolerancenormal = 50;
-game.tolerancehard = 60;
-game.tolerance = 0;
-//There may be no more than 3 gems on screen at once.
-game.numGems = 3;
-game.score = 0;
+var game = {
+    charSprite : 'images/char-boy.png',
+    /* numEnemies variables define the maximum number of enemies that may
+     * be on the screen, based on the difficulty.
+     */
+    numEnemieseasy : 4,
+    numEnemiesnormal : 5,
+    numEnemieshard : 5,
+    /* The tolerance variables determine how close (in pixels) the player may
+    * get to an enemy without before dying.  Also dependent on difficulty.
+    */
+    toleranceeasy : 40,
+    tolerancenormal : 50,
+    tolerancehard : 60,
+    tolerance : 0,
+    //There may be no more than 3 gems on screen at once.
+    numGems : 3,
+    score : 0,
+}
 
-/* Funcion called from gui.js when the Play button is pressed.  Initializes
- * basic game values, including the player, and the enemy and gem arrays.
+/* Funcion called from guiController.js when the Play button is pressed.
+ * Initializesbasic game values, including the player, and the enemy and
+ * gem arrays.
  */
 game.init = function() {
 	game.running = true;
@@ -56,13 +58,18 @@ GameObject.prototype.render = function() {
  * of the canvas to the other at a set speed.
  */
 var Enemy = function(startside, startrow, speed, index, wait) {
-    if (startside == "left") {var x = -101; var direction="right";}
-    else if (startside == "right") {var x = 606; var direction="left";}
+    if (startside == 'left') {var x = -101; var direction='right';}
+    else if (startside == 'right') {var x = 606; var direction='left';}
     var y = (startrow-1)*81;
     GameObject.call(this, x, y, 'images/enemy-bug-'+direction+'.png');
     this.row = startrow;
     this.direction = direction;
     this.speed = speed;
+    /* An enemy's index is it's place in the enemy array.  It needs to
+     * be accessible from the enemy object itself to conveniently replace
+     * enemies in the array as they leave the field.  New enemies will
+     * wait a few seconds before entering to keep entrances staggered.
+     */
     this.index = index;
     this.wait = wait;
 }
@@ -76,10 +83,10 @@ Enemy.prototype.constructor = Enemy;
  */
 Enemy.prototype.update = function(dt) {
     if (this.wait <= 0) {
-        if (this.direction == "left") {
+        if (this.direction == 'left') {
             this.sprite = 'images/enemy-bug-left.png';
             this.x = this.x - dt*this.speed;
-        } else if (this.direction == "right") {
+        } else if (this.direction == 'right') {
             this.sprite = 'images/enemy-bug-right.png';
             this.x = this.x + dt*this.speed;
         }
@@ -103,20 +110,18 @@ Enemy.prototype.furtherUpdate = function() {
 }
 
 /* Collision detector checks if the enemy is in the same row as the player, then 
- * checks if they are within the "tolerance."  Tolerance is in the range of
+ * checks if they are within the 'tolerance.'  Tolerance is in the range of
  * 50px and depends on difficulty
  */
 Enemy.prototype.checkCollision = function() {
-    if (this.row == game.player.ycor) {
-        if (Math.abs(this.x - game.player.x) <= game.tolerance) {
-            game.player.die();
-        }
+    if (this.row == game.player.ycor && Math.abs(this.x - game.player.x) <= game.tolerance) {
+        game.player.die();
     }
 }
 
 //Other enemy classes o'clock!
 
-/* This enemy type stops and goes.  It is assigned a "goTime" and "waitTime" at
+/* This enemy type stops and goes.  It is assigned a 'goTime' and 'waitTime' at
  * creation that determine how long it will go for before waiting, wait 
  * before going.
  */
@@ -148,16 +153,14 @@ var Chaser = function(startside, startrow, speed, index, wait) {
 Chaser.prototype = Object.create(Enemy.prototype);
 Chaser.prototype.constructor = Chaser;
 Chaser.prototype.furtherUpdate = function(dt) {
-    if (this.row == game.player.ycor) {
-        if (this.chasing == false) {
-            if (this.x < game.player.x) {
-                this.direction = "right";
-            } else {
-                this.direction = "left";
-            }
-            this.speed = this.baseSpeed*2;
-            this.chasing = true;
+    if (this.row == game.player.ycor && !this.chasing) {
+        if (this.x < game.player.x) {
+            this.direction = 'right';
+        } else {
+            this.direction = 'left';
         }
+        this.speed = this.baseSpeed*2;
+        this.chasing = true;
     } else {
         this.speed = this.baseSpeed;
         this.chasing = false;
@@ -183,30 +186,33 @@ Wanderer.prototype.furtherUpdate = function(dt) {
     if (this.totalTime >= this.maxTime) {
         //If the enemy has been in play for maxTime seconds
         //the turn variable is set to 50 seconds, long enough
-        //for it to leave play even if it is a slow enemy.
+        //for it to leave play even if it is very slow.
         this.turn = 50;
     }
     if (this.turn <= 0) {
-        if (this.direction == "right") {
-            this.direction = "left";
+        if (this.direction == 'right') {
+            this.direction = 'left';
         } else {
-            this.direction = "right";
+            this.direction = 'right';
         }
         this.turn = 0.5*this.turnTime + this.turnTime*Math.random();
     }
 }
 
-//Creates a new enemy with random properties dependent on difficulty.
+/* Creates a new enemy with random properties dependent on difficulty.
+ * Harder difficulty levels spawn faster enemies, and more enemies of
+ * the dangerous classes like Chaser.
+ */
 game.getNewEnemy = function (index) {
     var enemy;
-    var side = "";
-    if (Math.random()>0.5) {side = "left"}
-    else {side = "right"}
+    var side = '';
+    if (Math.random()>0.5) {side = 'left';}
+    else {side = 'right';}
     var row = Math.floor(2 + 3*Math.random());
     var wait = 2*Math.random();
     var type = Math.random();
     switch (game.difficulty) {
-        case "easy":
+        case 'easy':
             if (type <= 0.5) {
                 speed = Math.floor(50 + 100*Math.random());
                 enemy = new Enemy(side, row, speed, index, wait);
@@ -221,7 +227,7 @@ game.getNewEnemy = function (index) {
                 enemy = new Chaser(side, row, speed, index, wait);
             }
             break;
-        case "normal":
+        case 'normal':
             if (type <= 0.4) {
                 speed = Math.floor(75 + 100*Math.random());
                 enemy = new Enemy(side, row, speed, index, wait);
@@ -236,7 +242,7 @@ game.getNewEnemy = function (index) {
                 enemy = new Chaser(side, row, speed, index, wait);
             }
             break;
-        case "hard":
+        case 'hard':
             if (type <= 0.3) {
                 speed = Math.floor(100 + 125*Math.random());
                 enemy = new Enemy(side, row, speed, index, wait);
@@ -261,9 +267,9 @@ game.getNewEnemy = function (index) {
 
 //Initializes the array of enemies.  Also sets tolerance for proximity to an enemy.
 game.initEnemies = function() {
-    game.tolerance = game["tolerance"+game.difficulty];
+    game.tolerance = game['tolerance'+game.difficulty];
     var enemies = [];
-    var numEnemies = game["numEnemies"+game.difficulty];
+    var numEnemies = game['numEnemies'+game.difficulty];
     for (var i = 0; i<numEnemies; i++) {
         enemies.push(game.getNewEnemy(i));
     }
@@ -292,14 +298,14 @@ var Gem = function(xcor, ycor, type, spawnTime, index) {
     this.type = type;
     this.index = index;
     this.spawnTime = spawnTime;
-    if (type == "green") {
+    if (type == 'green') {
         this.existTime = 6;
-    } else if (type == "blue" || type == "heart") {
+    } else if (type == 'blue' || type == 'heart') {
         this.existTime = 5;
-    } else if (type == "orange") {
+    } else if (type == 'orange') {
         this.existTime = 4;
     }
-    if (this.type == "heart") {
+    if (this.type == 'heart') {
         this.realSprite = 'images/heart.png'
     } else {
         this.realSprite = 'images/gem-' + type + '.png';
@@ -334,13 +340,13 @@ Gem.prototype.detectCollision = function() {
 
 //Scores gem--increases points or lives depending on gem type.
 Gem.prototype.getScored = function() {
-    if (this.type == "green") {
+    if (this.type == 'green') {
         game.score += 200;
-    } else if (this.type == "blue") {
+    } else if (this.type == 'blue') {
         game.score += 500;
-    } else if (this.type == "orange") {
+    } else if (this.type == 'orange') {
         game.score += 1000;
-    } else if (this.type == "heart") {
+    } else if (this.type == 'heart') {
         game.player.lives++;
     }
     game.replaceGem(this.index);
@@ -361,14 +367,14 @@ game.initGems = function() {
 game.getNewGem = function(index) {
     var typeGen = Math.random();
     if (typeGen <= 0.375) {
-        var type = "green";
+        var type = 'green';
     } else if (typeGen > 0.375 && typeGen <= 0.625) {
-        var type = "blue";
+        var type = 'blue';
     } else if (typeGen > 0.625 && typeGen <= 0.875) {
-        var type = "heart";
+        var type = 'heart';
     } else if (typeGen > 0.875) {
-        var type = "orange";
-    } else {var type = "green";}
+        var type = 'orange';
+    } else {var type = 'green';}
     var ycor = Math.floor(2 + 3*Math.random());
     var xcor = Math.floor(1 + 5*Math.random());
     var spawnTime =  10*Math.random();
@@ -387,7 +393,7 @@ var Player = function(charSprite) {
     GameObject.call(this, 0, 0, charSprite);
     this.xcor = 3;
     this.ycor = 6;
-    this.moving = "still";
+    this.moving = 'still';
     this.xdisplace = 0;
     this.ydisplace = 0;
     this.speed = 800;
@@ -400,7 +406,7 @@ Player.prototype.constructor = Player;
  * several methods below.
  */
 Player.prototype.update = function(dt) {
-    if (this.moving != "still") {
+    if (this.moving != 'still') {
         this.updateDisplacement(dt);
     }
     this.getXPos();
@@ -428,25 +434,25 @@ Player.prototype.updateDisplacement = function(dt) {
          * ensure that the player moves up and down rows as fast
          * as they move side to side along columns.
          */
-        case "still": break;
-        case "left": this.xdisplace -= this.speed*dt*1.25; break;
-        case "right": this.xdisplace += this.speed*dt*1.25; break;
-        case "up": this.ydisplace -= this.speed*dt; break;
-        case "down": this.ydisplace += this.speed*dt; break;
-        default: console.log("default"); break;
+        case 'still': break;
+        case 'left': this.xdisplace -= this.speed*dt*1.25; break;
+        case 'right': this.xdisplace += this.speed*dt*1.25; break;
+        case 'up': this.ydisplace -= this.speed*dt; break;
+        case 'down': this.ydisplace += this.speed*dt; break;
+        default: console.log('default'); break;
     }
     /* If the player has finished moving a tile's distance, it's coordinates are
      * updated and the moving and displace variables are reset.
      */
     if (Math.abs(this.xdisplace) >= 101 || Math.abs(this.ydisplace) >= 81) {
         switch (this.moving) {
-            case "left": this.xcor -= 1; break;
-            case "right": this.xcor += 1; break;
-            case "up": this.ycor -= 1; break;
-            case "down": this.ycor += 1; break;
+            case 'left': this.xcor -= 1; break;
+            case 'right': this.xcor += 1; break;
+            case 'up': this.ycor -= 1; break;
+            case 'down': this.ycor += 1; break;
             default: break;
         }
-        this.moving = "still";
+        this.moving = 'still';
         this.xdisplace = 0;
         this.ydisplace = 0;
     }
@@ -459,7 +465,7 @@ Player.prototype.updateDisplacement = function(dt) {
 Player.prototype.die = function() {
     this.xcor = 3;
     this.ycor = 6;
-    this.moving = "still";
+    this.moving = 'still';
     this.xdisplace = 0;
     this.ydisplace = 0;
     this.lives--;
@@ -474,12 +480,12 @@ Player.prototype.die = function() {
  * the player out of bounds, it is cancelled.
  */
 Player.prototype.handleInput = function(key) {
-    if (this.moving == "still") {
+    if (this.moving == 'still') {
         this.moving = key;
-        if (key == "left" && this.xcor == 1) {this.moving="still"}
-        if (key == "right" && this.xcor == 5) {this.moving="still"}
-        if (key == "down" && this.ycor == 6) {this.moving="still"}
-        if (key == "up" && this.ycor == 2) {this.moving="still"}
+        if (key == 'left' && this.xcor == 1) {this.moving='still'}
+        if (key == 'right' && this.xcor == 5) {this.moving='still'}
+        if (key == 'down' && this.ycor == 6) {this.moving='still'}
+        if (key == 'up' && this.ycor == 2) {this.moving='still'}
     }
 }
 
