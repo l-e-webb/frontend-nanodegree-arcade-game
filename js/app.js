@@ -1,31 +1,60 @@
+/* The game object (not to be confused with the GameObject class!
+ * contains all the necessary in-game information.  It only interacts
+ * with the Engine function through the render and update methods
+ * of the GameObjects.  The game object itself mainly exists
+ * to avoid cluttering the global scope.
+ */
+
 var game = {};
 game.charSprite = "images/char-boy.png";
-game.running = false;
+/* numEnemies variables define the maximum number of enemies that may
+ * be on the screen, based on the difficulty.
+ */
 game.numEnemieseasy = 4;
 game.numEnemiesnormal = 5;
 game.numEnemieshard = 5;
+/* The tolerance variables determine how close the player may get to
+ * an enemy without before dying.  Also dependent on difficulty.
+ */
 game.toleranceeasy = 40;
 game.tolerancenormal = 50;
 game.tolerancehard = 60;
 game.tolerance = 0;
+//There may be no more than 3 gems on screen at once.
 game.numGems = 3;
 game.score = 0;
 
+/* Funcion called from gui.js when the Play button is pressed.  Initializes
+ * basic game values, including the player, and the enemy and gem arrays.
+ */
+game.init = function() {
+	game.running = true;
+	game.score = 0;
+	game.player = new Player(game.charSprite);
+    game.allEnemies = game.initEnemies();
+    game.allGems = game.initGems()
+}
 
-//GameObject class is a master class for enemies, players,
-//and gems.
+
+/* GameObject class is a master class for enemies, players, and gems.  It only
+ * carries position and sprite rendering properties.
+ */
 var GameObject = function(x,y,sprite) {
     this.x = x;
     this.y = y;
     this.sprite = sprite;
 }
 
+//The render method used by players, enemies, and gems alike.
 GameObject.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
 
-//Class for enemies our player must avoid.
+/* Master class for enemies our player must avoid, subclass of the
+ * GameObject class.  The basic enemy object simply moves from one end
+ * of the canvas to the other at a set speed.
+ */
 var Enemy = function(startside, startrow, speed, index, wait) {
     if (startside == "left") {var x = -101; var direction="right";}
     else if (startside == "right") {var x = 606; var direction="left";}
@@ -40,8 +69,11 @@ var Enemy = function(startside, startrow, speed, index, wait) {
 Enemy.prototype = Object.create(GameObject.prototype);
 Enemy.prototype.constructor = Enemy;
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/* Update the enemy's position, required method for game.  Moves the
+ * enemy based on dt parameter from the Engine function.  Update also
+ * ensure the enemy is using the correct sprite, and checks to see if it
+ * is within game.tolerance of the player.
+ */
 Enemy.prototype.update = function(dt) {
     if (this.wait <= 0) {
         if (this.direction == "left") {
@@ -53,12 +85,13 @@ Enemy.prototype.update = function(dt) {
         }
         //Checks to see if it has killed the player.
         this.checkCollision();
-        //This function is blank for regular enemies, but has
-        //a value for specific enemy classes who require...
-        //well... further updates.
+        /* The furtherUpdate method is blank for regular enemies, but has a
+         * value for specific enemy classes who require... well... further updates.
+         */
         this.furtherUpdate(dt);
-        //If enemy has left the screen, it is removed from
-        //the allEnemies array and a new one is added.
+        /* If enemy has left the screen, it is removed from the allEnemies 
+         * array and a new one is added.
+         */
         if (this.x < -101 || this.x > 606) {
             game.replaceEnemy(this.index);
         }
@@ -69,9 +102,10 @@ Enemy.prototype.furtherUpdate = function() {
     //Only has functionality for other classes.
 }
 
-//Collision detector checks if the enemy is in the same row as the player,
-//then checks if they are within the "tolerance."  Tolerance is in the range
-//of 50px and depends on difficulty.
+/* Collision detector checks if the enemy is in the same row as the player, then 
+ * checks if they are within the "tolerance."  Tolerance is in the range of
+ * 50px and depends on difficulty
+ */
 Enemy.prototype.checkCollision = function() {
     if (this.row == game.player.ycor) {
         if (Math.abs(this.x - game.player.x) <= game.tolerance) {
@@ -82,9 +116,10 @@ Enemy.prototype.checkCollision = function() {
 
 //Other enemy classes o'clock!
 
-//This enemy type stops and goes.  It is assigned a "goTime" and "waitTime"
-//at creation that determine how long it will go for before waiting, wait
-//before going.
+/* This enemy type stops and goes.  It is assigned a "goTime" and "waitTime" at
+ * creation that determine how long it will go for before waiting, wait 
+ * before going.
+ */
 var StopAndGo = function(startside, startrow, speed, index, wait, goTime, waitTime) {
     Enemy.call(this, startside, startrow, speed, index, wait);
     this.goTime = goTime;
@@ -102,8 +137,9 @@ StopAndGo.prototype.furtherUpdate = function(dt) {
     }
 }
 
-//This enemy type turns towards the player and speeds up if the player
-//is on the same row.
+/* This enemy type turns towards the player and speeds up if the player 
+ * is on the same row.
+ */
 var Chaser = function(startside, startrow, speed, index, wait) {
     Enemy.call(this, startside, startrow, speed, index, wait);
     this.baseSpeed = speed;
@@ -128,9 +164,10 @@ Chaser.prototype.furtherUpdate = function(dt) {
     }
 }
 
-//This enemy type turns around and goes in the other direction
-//periodically.  After maxTime seconds it will stop wandering to
-//ensure that it eventually leaves play.
+/* This enemy type turns around and goes in the other direction periodically.
+ * After maxTime seconds it will stop wandering to ensure that it eventually
+ * leaves play.
+ */
 var Wanderer = function(startside, startrow, speed, index, wait, turnTime, maxTime) {
     Enemy.call(this, startside, startrow, speed, index, wait);
     this.turnTime = turnTime;
@@ -159,8 +196,7 @@ Wanderer.prototype.furtherUpdate = function(dt) {
     }
 }
 
-//Creates a new enemy with random properties dependent on
-//difficulty.
+//Creates a new enemy with random properties dependent on difficulty.
 game.getNewEnemy = function (index) {
     var enemy;
     var side = "";
@@ -223,8 +259,7 @@ game.getNewEnemy = function (index) {
     return enemy;
 }
 
-//Initializes the array of enemies.  Also sets tolerance for proximity
-//to an enemy.
+//Initializes the array of enemies.  Also sets tolerance for proximity to an enemy.
 game.initEnemies = function() {
     game.tolerance = game["tolerance"+game.difficulty];
     var enemies = [];
@@ -235,16 +270,19 @@ game.initEnemies = function() {
     return enemies;
 }
 
-//Used to spawn a new enemy once an old enemy has run off
-//the screen.
+//Used to spawn a new enemy once an old enemy has run off the screen.
 game.replaceEnemy = function(index) {
     game.allEnemies[index] = game.getNewEnemy(index);
 }
 
 
 
-//Gem class for objects that appear on the screen that players can
-//grab for points.
+/* Gem class for objects that appear on the screen that players can grab
+ * for points.  Also class for hearts that spawn and give the player extra
+ * lives.  Gems are invisible for some amount of time after spawning so
+ * that there aren't always 3 gems available.  Invisible gems cannot be
+ * scored.
+ */
 var Gem = function(xcor, ycor, type, spawnTime, index) {
     var x = (xcor-1)*101;
     var y = (ycor-1)*83;
@@ -270,7 +308,9 @@ var Gem = function(xcor, ycor, type, spawnTime, index) {
 Gem.prototype = Object.create(GameObject.prototype);
 Gem.prototype.constructor = Gem;
 
-
+/* Tracks time until the gem should appear or disappear, checks
+ * if a player is on the gem's tile.
+ */
 Gem.prototype.update = function(dt) {
     if (this.spawnTime > 0) {
         this.spawnTime -= dt;
@@ -285,12 +325,14 @@ Gem.prototype.update = function(dt) {
     }
 }
 
+//Scores gem if a player is on its tile.
 Gem.prototype.detectCollision = function() {
     if (this.ycor == game.player.ycor && this.xcor == game.player.xcor) {
         this.getScored();
     }
 }
 
+//Scores gem--increases points or lives depending on gem type.
 Gem.prototype.getScored = function() {
     if (this.type == "green") {
         game.score += 200;
@@ -304,6 +346,7 @@ Gem.prototype.getScored = function() {
     game.replaceGem(this.index);
 }
 
+//Creates initial gem array.
 game.initGems = function() {
     var gems = [];
     for (var i = 0; i < game.numGems; i++) {
@@ -312,6 +355,9 @@ game.initGems = function() {
     return gems;
 }
 
+/* Creates a new gem with random properties.  Low point gems
+ * are more common.
+ */
 game.getNewGem = function(index) {
     var typeGen = Math.random();
     if (typeGen <= 0.375) {
@@ -330,12 +376,13 @@ game.getNewGem = function(index) {
     return gem;
 }
 
+//Adds a new gem to the gem array.
 game.replaceGem = function(index) {
     game.allGems[index] = game.getNewGem(index);
 }
 
 
-//Player class.
+//Player class.  Keeps track of player position and lives.
 var Player = function(charSprite) {
     GameObject.call(this, 0, 0, charSprite);
     this.xcor = 3;
@@ -349,8 +396,9 @@ var Player = function(charSprite) {
 Player.prototype = Object.create(GameObject.prototype);
 Player.prototype.constructor = Player;
 
-//Update function to track player motion.  Farms out its duty
-//to several functions below.
+/* Update method to track player motion.  Farms out its duty to
+ * several methods below.
+ */
 Player.prototype.update = function(dt) {
     if (this.moving != "still") {
         this.updateDisplacement(dt);
@@ -359,8 +407,9 @@ Player.prototype.update = function(dt) {
     this.getYPos();
 }
 
-//Subsidiary functions to update that get the player's position
-//in pixels based on its coordinates on the grid.
+/* Subsidiary methods to update that get the player's position in
+ * pixels based on its coordinates on the grid.
+ */
 Player.prototype.getXPos = function() {
     this.x = (this.xcor-1)*101 + this.xdisplace;
 }
@@ -369,14 +418,16 @@ Player.prototype.getYPos = function() {
     this.y = (this.ycor-1)*81 + this.ydisplace;
 }
 
-//This function updates the displacement of the player's sprite
-//from the grid, so they can slide from tile to tile rather than
-//appearing to engage in short range teleportation.
+/* This method updates the displacement of the player's sprite
+ * from the grid, so they can slide from tile to tile rather than
+ * appearing to engage in short range teleportation.
+ */
 Player.prototype.updateDisplacement = function(dt) {
     switch (this.moving) {
-        //Speed is increased by 25% in the horizontal direction to
-        //ensure that the player moves up and down rows as fast
-        //as they move side to side along columns.
+        /* Speed is increased by 25% in the horizontal direction to
+         * ensure that the player moves up and down rows as fast
+         * as they move side to side along columns.
+         */
         case "still": break;
         case "left": this.xdisplace -= this.speed*dt*1.25; break;
         case "right": this.xdisplace += this.speed*dt*1.25; break;
@@ -384,8 +435,9 @@ Player.prototype.updateDisplacement = function(dt) {
         case "down": this.ydisplace += this.speed*dt; break;
         default: console.log("default"); break;
     }
-    //If the player has finished moving a tile's distance, it's coordinates are
-    //updated and the moving and displace variables are reset.
+    /* If the player has finished moving a tile's distance, it's coordinates are
+     * updated and the moving and displace variables are reset.
+     */
     if (Math.abs(this.xdisplace) >= 101 || Math.abs(this.ydisplace) >= 81) {
         switch (this.moving) {
             case "left": this.xcor -= 1; break;
@@ -400,6 +452,10 @@ Player.prototype.updateDisplacement = function(dt) {
     }
 }
 
+/* Method called when player collides with an enemy.  Returns player to
+ * start position, docks score and lives, and, if the player is out of lives,
+ * makes the game end at the end of the next frame.
+ */
 Player.prototype.die = function() {
     this.xcor = 3;
     this.ycor = 6;
@@ -408,12 +464,15 @@ Player.prototype.die = function() {
     this.ydisplace = 0;
     this.lives--;
     game.score -= 500;
+    if (this.lives <= 0) {
+    	game.running = false;
+    }
 }
 
-//Method that handles keyboard controls.  If the player
-//is moving, the input is ignored; else, it instigates motion.
-//If this motion would send the player out of bounds, it is
-//cancelled.
+/* Method that handles keyboard controls.  If the player is moving, the
+ * input is ignored; else, it instigates motion. If this motion would send
+ * the player out of bounds, it is cancelled.
+ */
 Player.prototype.handleInput = function(key) {
     if (this.moving == "still") {
         this.moving = key;
@@ -424,8 +483,7 @@ Player.prototype.handleInput = function(key) {
     }
 }
 
-// This listens for key presses and sends the keys to
-// Player.handleInput() method.
+//This listens for key presses and sends the keys to Player.handleInput() method.
 document.addEventListener('keyup', function(e) {
     if (game.running) {
         var allowedKeys = {
@@ -437,21 +495,3 @@ document.addEventListener('keyup', function(e) {
         game.player.handleInput(allowedKeys[e.keyCode]);
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

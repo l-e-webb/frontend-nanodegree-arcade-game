@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<div class="main">
+<div class="main" id="openingScreen">
     <h2>Select Character:</h2>
     <div class="row">
         <img src="images/char-boy.png" class="charImg selected" id="char-boy">
@@ -27,6 +27,15 @@
             Play!
         </div>
     </div>
+</div>
+
+<div class="main" id="gameOverScreen" style="display:none">
+	<div class="row">
+		<h1>Game Over</h1>
+	</div>
+	<div class="row">
+		<div class="play-button" id="playAgain">Play Again?</div>
+	</div>
 </div>
 
 <script src="js/jquery-1.11.2.min.js"></script>
