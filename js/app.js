@@ -1,3 +1,5 @@
+"use strict";
+
 /* The game object (not to be confused with the GameObject class!
  * contains all the necessary in-game information.  It only interacts
  * with the Engine function through the render and update methods
@@ -34,7 +36,7 @@ game.init = function() {
     game.score = 0;
     game.player = new Player(game.charSprite);
     game.allEnemies = game.initEnemies();
-    game.allGems = game.initGems()
+    game.allGems = game.initGems();
 };
 
 
@@ -58,8 +60,10 @@ GameObject.prototype.render = function() {
  * of the canvas to the other at a set speed.
  */
 var Enemy = function(startside, startrow, speed, index, wait) {
-    if (startside == 'left') {var x = -101; var direction='right';}
-    else if (startside == 'right') {var x = 606; var direction='left';}
+    var x;
+    var direction;
+    if (startside == 'left') {x = -101; direction='right';}
+    else if (startside == 'right') {x = 606; direction='left';}
     var y = (startrow-1)*81;
     GameObject.call(this, x, y, 'images/enemy-bug-'+direction+'.png');
     this.row = startrow;
@@ -205,6 +209,7 @@ Wanderer.prototype.furtherUpdate = function(dt) {
  */
 game.getNewEnemy = function (index) {
     var enemy;
+    var speed;
     var side = '';
     if (Math.random()>0.5) {side = 'left';}
     else {side = 'right';}
@@ -306,7 +311,7 @@ var Gem = function(xcor, ycor, type, spawnTime, index) {
         this.existTime = 4;
     }
     if (this.type == 'heart') {
-        this.realSprite = 'images/heart.png'
+        this.realSprite = 'images/heart.png';
     } else {
         this.realSprite = 'images/gem-' + type + '.png';
     }
@@ -366,15 +371,16 @@ game.initGems = function() {
  */
 game.getNewGem = function(index) {
     var typeGen = Math.random();
+    var type;
     if (typeGen <= 0.375) {
-        var type = 'green';
+        type = 'green';
     } else if (typeGen > 0.375 && typeGen <= 0.625) {
-        var type = 'blue';
+        type = 'blue';
     } else if (typeGen > 0.625 && typeGen <= 0.875) {
-        var type = 'heart';
+        type = 'heart';
     } else if (typeGen > 0.875) {
-        var type = 'orange';
-    } else {var type = 'green';}
+        type = 'orange';
+    } else {type = 'green';}
     var ycor = Math.floor(2 + 3*Math.random());
     var xcor = Math.floor(1 + 5*Math.random());
     var spawnTime =  10*Math.random();
@@ -411,6 +417,9 @@ Player.prototype.update = function(dt) {
     }
     this.getXPos();
     this.getYPos();
+    if (this.ycor <= 1) {
+        this.die();
+    }
 };
 
 /* Subsidiary methods to update that get the player's position in
@@ -485,7 +494,7 @@ Player.prototype.handleInput = function(key) {
         if (key == 'left' && this.xcor == 1) {this.moving='still';}
         if (key == 'right' && this.xcor == 5) {this.moving='still';}
         if (key == 'down' && this.ycor == 6) {this.moving='still';}
-        if (key == 'up' && this.ycor == 2) {this.moving='still';}
+        //if (key == 'up' && this.ycor == 2) {this.moving='still';}
     }
 };
 
