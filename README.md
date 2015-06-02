@@ -5,7 +5,6 @@ To play: Ensure that index.html and the three folders css, images, and js
 are all in a folder together.  Then simply open index.html in any browser
 to play.  Alternatively, you can play the game online at:
 
-<<<<<<< HEAD
 https://l-e-webb.github.io/frontend-nanodegree-arcade-game
 
 After selecting your character and difficulty level, the game will begin.
@@ -21,6 +20,3 @@ All bugs are deadly, but pay close attention to how they behave.  Some just trun
 
 Hearts and Gems:
 Hearts and gems sometimes appear for a few seconds on a square.  Stepping on the hearts will give you an extra life, while stepping on gems increases your score.  Green gems are worth 200 points, blue gems are worth 500 points, orange gems are worth 1000 points--but be careful!  The orange gems disappear more quickly.  Dying will dock your score by 500 points.  See how high a score you can get!
-=======
-http://l-e-webb.github.io/frontend-nanodegree-arcade-game
->>>>>>> d43ad68fc6007f3d9ae81d5f86de98b81873a61b
